@@ -4,6 +4,7 @@ export const List = ({ list, users }) => {
       <thead>
         <tr>
           <th>Title</th>
+          <th>Organization</th>
           <th>Manager</th>
         </tr>
       </thead>
@@ -11,6 +12,7 @@ export const List = ({ list, users }) => {
         {list.map((project) => (
           <tr key={project.id}>
             <td>{project.name}</td>
+            <td>{project.organization}</td>
             <td>
               {/* optional chaining (?.)  to avoid the errors (when the object is null or undefined return undefined instead of error) */}
               {users.find((user) => user.id === project.personId)?.name ||
