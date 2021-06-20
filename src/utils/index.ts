@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 // don't change the original object
-export const cleanObject = (object) => {
+export const cleanObject = (object: any) => {
   // Object.assign({}, object)
   const result = { ...object };
   Object.keys(result).forEach((key) => {
@@ -13,15 +13,15 @@ export const cleanObject = (object) => {
   return result;
 };
 
-export const isFalsy = (value) => (value === 0 ? false : !value);
+export const isFalsy = (value: any) => (value === 0 ? false : !value);
 
-export const useMount = (callback) => {
+export const useMount = (callback: () => void) => {
   useEffect(() => {
     callback();
   }, []);
 };
 
-export const useDebounce = (value, delay) => {
+export const useDebounce = (value: any, delay?: number) => {
   const [deboucedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
