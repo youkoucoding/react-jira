@@ -13,7 +13,7 @@ export const cleanObject = (object: any) => {
   return result;
 };
 
-export const isFalsy = (value: any) => (value === 0 ? false : !value);
+export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
 
 export const useMount = (callback: () => void) => {
   useEffect(() => {
@@ -21,7 +21,10 @@ export const useMount = (callback: () => void) => {
   }, []);
 };
 
-export const useDebounce = (value: any, delay?: number) => {
+// generic of arrow function: const hash: <T> (arg: T) => number = (arg) => {
+// return 42;
+// }
+export const useDebounce = <V>(value: V, delay?: number) => {
   const [deboucedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
