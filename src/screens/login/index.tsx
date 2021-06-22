@@ -1,10 +1,10 @@
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
 export const LoginScreen = () => {
   const login = (param: { username: string; password: string }) => {
-    fetch(`${apiUrl}/login`, {
+    fetch(`${apiUrl}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export const LoginScreen = () => {
         <label htmlFor="password">Password</label>
         <input type="password" id="password" />
       </div>
-      <button type="submit">Login</button>
+      <button type="submit">Register</button>
     </form>
   );
 };
