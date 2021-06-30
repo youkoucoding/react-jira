@@ -1,4 +1,4 @@
-import { User } from "screens/project-list/search-pannel";
+import { User } from "screens/project-list/search-panel";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -12,7 +12,7 @@ export const handleUserResponse = ({ user }: { user: User }) => {
 };
 
 export const login = (data: { username: string; password: string }) => {
-  return fetch(`${apiUrl}/register`, {
+  return fetch(`${apiUrl}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
