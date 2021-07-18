@@ -32,7 +32,7 @@ export const useAsync = <D>(initialState?: State<D>) => {
       data: null,
     });
 
-  // 触发一步请求
+  // 触发异步请求
   const run = (promise: Promise<D>) => {
     if (!promise || !promise.then) {
       throw new Error("Please pass the data in Promise");
