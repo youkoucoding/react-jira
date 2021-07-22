@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
 export const isVoid = (value: unknown) =>
@@ -83,7 +83,9 @@ export const useDocumentTitle = (
   title: string,
   keepOnUnmount: boolean = true
 ) => {
-  const oldTitle = document.title;
+  // useRef 保存初始页面标题，并在组件整个声明周期内，保持不变
+  const oldTitle = useRef(document.title).current;
+
   useEffect(() => {
     document.title = title;
   }, [title]);
@@ -94,6 +96,5 @@ export const useDocumentTitle = (
         document.title = oldTitle;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [keepOnUnmount, oldTitle]);
 };
