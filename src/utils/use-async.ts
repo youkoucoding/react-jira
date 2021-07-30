@@ -12,11 +12,21 @@ const defaultInitialState: State<null> = {
   error: null,
 };
 
-export const useAsync = <D>(initialState?: State<D>) => {
+const defaultConfig = {
+  throwOnError: false,
+};
+
+export const useAsync = <D>(
+  initialState?: State<D>,
+  initialConfig?: typeof defaultConfig
+) => {
+  const config = { ...defaultConfig, ...initialConfig };
   const [state, setState] = useState<State<D>>({
     ...defaultInitialState,
     ...initialState,
   });
+
+  const [retry, setRetry] = useState(() => () => {});
 
   const setData = (data: D) =>
     setState({
@@ -33,10 +43,18 @@ export const useAsync = <D>(initialState?: State<D>) => {
     });
 
   // 触发异步请求
-  const run = (promise: Promise<D>) => {
+  const run = (
+    promise: Promise<D>,
+    runConfig?: { retry: () => Promise<D> }
+  ) => {
     if (!promise || !promise.then) {
       throw new Error("Please pass the data in Promise");
     }
+    setRetry(() => () => {
+      if (runConfig?.retry) {
+        run(runConfig?.retry(), runConfig);
+      }
+    });
     setState({ ...state, stat: "loading" });
     return promise
       .then((data) => {
