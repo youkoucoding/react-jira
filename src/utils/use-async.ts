@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useReducer, useCallback } from "react";
 import { useMountedRef } from "utils";
 
 interface State<D> {
@@ -17,38 +17,52 @@ const defaultConfig = {
   throwOnError: false,
 };
 
+// 取代   const mountedRef = useMountedRef();
+const useSafeDispatch = <T>(dispatch: (...args: T[]) => void) => {
+  const mountedRef = useMountedRef();
+
+  return useCallback(
+    (...args: T[]) => (mountedRef.current ? dispatch(...args) : void 0),
+    [dispatch, mountedRef]
+  );
+};
+
 export const useAsync = <D>(
   initialState?: State<D>,
   initialConfig?: typeof defaultConfig
 ) => {
   const config = { ...defaultConfig, ...initialConfig };
-  const [state, setState] = useState<State<D>>({
-    ...defaultInitialState,
-    ...initialState,
-  });
+  const [state, dispatch] = useReducer(
+    (state: State<D>, action: Partial<State<D>>) => ({ ...state, ...action }),
+    {
+      ...defaultInitialState,
+      ...initialState,
+    }
+  );
 
-  const mountedRef = useMountedRef();
+  const safeDispatch = useSafeDispatch(dispatch);
 
+  // useState 直接传入函数的含义是：惰性初始化； 因此，用useState 保存函数，不能直接传入函数。
   const [retry, setRetry] = useState(() => () => {});
 
   const setData = useCallback(
     (data: D) =>
-      setState({
+      safeDispatch({
         data,
         stat: "success",
         error: null,
       }),
-    []
+    [safeDispatch]
   );
 
   const setError = useCallback(
     (error: Error) =>
-      setState({
+      safeDispatch({
         error,
         stat: "error",
         data: null,
       }),
-    []
+    [safeDispatch]
   );
 
   // 触发异步请求
@@ -63,12 +77,10 @@ export const useAsync = <D>(
           run(runConfig?.retry(), runConfig);
         }
       });
-      setState((prevState) => ({ ...prevState, stat: "loading" }));
+      safeDispatch({ stat: "loading" });
       return promise
         .then((data) => {
-          if (mountedRef) {
-            setData(data);
-          }
+          setData(data);
           return data;
         })
         .catch((error) => {
@@ -78,7 +90,7 @@ export const useAsync = <D>(
         });
     },
     //mountedRef', 'setData', and 'state'
-    [config.throwOnError, mountedRef, setData, setError]
+    [config.throwOnError, setData, setError, safeDispatch]
   );
 
   return {
@@ -86,6 +98,8 @@ export const useAsync = <D>(
     isloading: state.stat === "loading",
     iserror: state.stat === "error",
     issuccess: state.stat === "success",
+    // retry 调用时 运行run 使state 刷新
+    retry,
     run,
     setData,
     setError,
