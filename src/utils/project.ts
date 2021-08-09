@@ -3,58 +3,43 @@ import { Project } from "screens/project-list/list";
 import { useEffect, useCallback } from "react";
 import { cleanObject } from "utils";
 import { useHttp } from "./http";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const useProjects = (param: Partial<Project>) => {
-  const { run, ...result } = useAsync<Project[]>();
   const client = useHttp();
 
-  const fetchProjects = useCallback(
-    () => client("projects", { data: cleanObject(param || {}) }),
-    [client, param]
+  return useQuery<Project[]>(["projects", param], () =>
+    client("projects", { data: param })
   );
-
-  useEffect(() => {
-    run(fetchProjects(), {
-      retry: fetchProjects,
-    });
-    // client("projects", { data: cleanObject(debouncedParam) })
-    //   .then(setList)
-    //   .catch((error) => {
-    //     setList([]);
-    //     setError(error);
-    //   })
-    //   .finally(() => setIsLoading(true));
-  }, [param, run, fetchProjects]);
-
-  return result;
 };
 
 export const useEditProject = () => {
-  const { run, ...asyncResult } = useAsync();
   const client = useHttp();
-  const mutate = (params: Partial<Project>) => {
-    run(
-      client(`projects/${params.id}`, {
-        data: params,
+  const queryClient = useQueryClient();
+  return useMutation(
+    (params: Partial<Project>) =>
+      client(`project/${params.id}`, {
         method: "PATCH",
-      })
-    );
-  };
-
-  return { mutate, ...asyncResult };
+        data: params,
+      }),
+    {
+      onSuccess: () => queryClient.invalidateQueries("prohjects"),
+    }
+  );
 };
 
 export const useAddProject = () => {
-  const { run, ...asyncResult } = useAsync();
   const client = useHttp();
-  const mutate = (params: Partial<Project>) => {
-    run(
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    (params: Partial<Project>) =>
       client(`projects/${params.id}`, {
         data: params,
         method: "POST",
-      })
-    );
-  };
-
-  return { mutate, ...asyncResult };
+      }),
+    {
+      onSuccess: () => queryClient.invalidateQueries("prohjects"),
+    }
+  );
 };
