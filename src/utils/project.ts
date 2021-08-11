@@ -4,6 +4,8 @@ import { useEffect, useCallback } from "react";
 import { cleanObject } from "utils";
 import { useHttp } from "./http";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useProjectsSearchParams } from "screens/project-list/util";
+import { isQueryKey } from "react-query/types/core/utils";
 
 export const useProjects = (param: Partial<Project>) => {
   const client = useHttp();
@@ -16,6 +18,8 @@ export const useProjects = (param: Partial<Project>) => {
 export const useEditProject = () => {
   const client = useHttp();
   const queryClient = useQueryClient();
+  const [searchParams] = useProjectsSearchParams();
+  const queryKey = ["projects", searchParams];
   return useMutation(
     (params: Partial<Project>) =>
       client(`project/${params.id}`, {
@@ -23,7 +27,23 @@ export const useEditProject = () => {
         data: params,
       }),
     {
-      onSuccess: () => queryClient.invalidateQueries("prohjects"),
+      onSuccess: () => queryClient.invalidateQueries(queryKey),
+      async onMutate(target: Partial<Project>) {
+        const previousItems = queryClient.getQueryData(queryKey);
+        queryClient.setQueriesData(queryKey, (old?: Project[]) => {
+          return old.map((project) =>
+            project.id === target.id ? { ...project, ...target } : project
+          );
+        });
+        return { previousItems };
+      },
+      //回滚
+      onError(error, newItem: Partial<Project>, context: TContext | undefined) {
+        queryClient.setQueryData(
+          queryKey,
+          (context as { previousItems: Project[] }).previousItems
+        );
+      },
     }
   );
 };
