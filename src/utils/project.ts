@@ -1,11 +1,7 @@
-import { useAsync } from "utils/use-async";
 import { Project } from "screens/project-list/list";
-import { useEffect, useCallback } from "react";
-import { cleanObject } from "utils";
 import { useHttp } from "./http";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useProjectsSearchParams } from "screens/project-list/util";
-import { isQueryKey } from "react-query/types/core/utils";
+import { QueryKey, useMutation, useQuery, useQueryClient } from "react-query";
+import { useAddConfig, useEditConfig } from "./use-optimistic-option";
 
 export const useProjects = (param: Partial<Project>) => {
   const client = useHttp();
@@ -15,42 +11,20 @@ export const useProjects = (param: Partial<Project>) => {
   );
 };
 
-export const useEditProject = () => {
+export const useEditProject = (querykey: QueryKey) => {
   const client = useHttp();
-  const queryClient = useQueryClient();
-  const [searchParams] = useProjectsSearchParams();
-  const queryKey = ["projects", searchParams];
   return useMutation(
     (params: Partial<Project>) =>
-      client(`project/${params.id}`, {
+      client(`projects/${params.id}`, {
         method: "PATCH",
         data: params,
       }),
-    {
-      onSuccess: () => queryClient.invalidateQueries(queryKey),
-      async onMutate(target: Partial<Project>) {
-        const previousItems = queryClient.getQueryData(queryKey);
-        queryClient.setQueriesData(queryKey, (old?: Project[]) => {
-          return old.map((project) =>
-            project.id === target.id ? { ...project, ...target } : project
-          );
-        });
-        return { previousItems };
-      },
-      //回滚
-      onError(error, newItem: Partial<Project>, context: TContext | undefined) {
-        queryClient.setQueryData(
-          queryKey,
-          (context as { previousItems: Project[] }).previousItems
-        );
-      },
-    }
+    useEditConfig(queryKey)
   );
 };
 
-export const useAddProject = () => {
+export const useAddProject = (queryKey: QueryKey) => {
   const client = useHttp();
-  const queryClient = useQueryClient();
 
   return useMutation(
     (params: Partial<Project>) =>
@@ -58,9 +32,7 @@ export const useAddProject = () => {
         data: params,
         method: "POST",
       }),
-    {
-      onSuccess: () => queryClient.invalidateQueries("projects"),
-    }
+    useAddConfig(queryKey)
   );
 };
 
