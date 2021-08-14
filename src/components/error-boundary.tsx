@@ -9,6 +9,7 @@ export class ErrorBoundary extends React.Component<
 > {
   state = { error: null };
 
+  // 当自组件抛出异常，这里接收并且调用
   static getDerivedStateFromError(error: Error) {
     return { error };
   }
@@ -19,7 +20,6 @@ export class ErrorBoundary extends React.Component<
     if (error) {
       return fallbackRender({ error });
     }
-
     return children;
   }
 }

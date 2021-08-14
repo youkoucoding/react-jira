@@ -1,5 +1,5 @@
-import { useState, useReducer, useCallback } from "react";
-import { useMountedRef } from "utils";
+import { useCallback, useReducer, useState } from "react";
+import { useMountedRef } from "utils/index";
 
 interface State<D> {
   error: Error | null;
@@ -17,10 +17,8 @@ const defaultConfig = {
   throwOnError: false,
 };
 
-// 取代   const mountedRef = useMountedRef();
 const useSafeDispatch = <T>(dispatch: (...args: T[]) => void) => {
   const mountedRef = useMountedRef();
-
   return useCallback(
     (...args: T[]) => (mountedRef.current ? dispatch(...args) : void 0),
     [dispatch, mountedRef]
@@ -39,10 +37,9 @@ export const useAsync = <D>(
       ...initialState,
     }
   );
-
   const safeDispatch = useSafeDispatch(dispatch);
-
-  // useState 直接传入函数的含义是：惰性初始化； 因此，用useState 保存函数，不能直接传入函数。
+  // useState直接传入函数的含义是：惰性初始化；所以，要用useState保存函数，不能直接传入函数
+  // https://codesandbox.io/s/blissful-water-230u4?file=/src/App.js
   const [retry, setRetry] = useState(() => () => {});
 
   const setData = useCallback(
@@ -65,13 +62,12 @@ export const useAsync = <D>(
     [safeDispatch]
   );
 
-  // 触发异步请求
+  // run 用来触发异步请求
   const run = useCallback(
     (promise: Promise<D>, runConfig?: { retry: () => Promise<D> }) => {
       if (!promise || !promise.then) {
-        throw new Error("Please pass the data in Promise");
+        throw new Error("请传入 Promise 类型数据");
       }
-
       setRetry(() => () => {
         if (runConfig?.retry) {
           run(runConfig?.retry(), runConfig);
@@ -84,25 +80,25 @@ export const useAsync = <D>(
           return data;
         })
         .catch((error) => {
+          // catch会消化异常，如果不主动抛出，外面是接收不到异常的
           setError(error);
           if (config.throwOnError) return Promise.reject(error);
           return error;
         });
     },
-    //mountedRef', 'setData', and 'state'
     [config.throwOnError, setData, setError, safeDispatch]
   );
 
   return {
-    ididle: state.stat === "idle",
-    isloading: state.stat === "loading",
-    iserror: state.stat === "error",
-    issuccess: state.stat === "success",
-    // retry 调用时 运行run 使state 刷新
-    retry,
+    isIdle: state.stat === "idle",
+    isLoading: state.stat === "loading",
+    isError: state.stat === "error",
+    isSuccess: state.stat === "success",
     run,
     setData,
     setError,
+    // retry 被调用时重新跑一遍run，让state刷新一遍
+    retry,
     ...state,
   };
 };

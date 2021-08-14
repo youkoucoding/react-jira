@@ -24,6 +24,13 @@ export const Row = styled.div<{
   }
 `;
 
+const FullPage = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 export const FullPageLoading = () => (
   <FullPage>
     <Spin size={"large"} />
@@ -44,6 +51,7 @@ export const ErrorBox = ({ error }: { error: unknown }) => {
   if (isError(error)) {
     return <Typography.Text type={"danger"}>{error?.message}</Typography.Text>;
   }
+  return null;
 };
 
 export const ButtonNoPadding = styled(Button)`

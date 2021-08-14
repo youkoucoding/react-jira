@@ -1,9 +1,8 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/react";
 import React from "react";
-import { Input, Select } from "antd";
-import { Form } from "antd";
-import { Project } from "./list";
+import { Form, Input } from "antd";
+import { Project } from "screens/project-list/list";
 import { UserSelect } from "components/user-select";
 
 export interface User {
@@ -23,12 +22,11 @@ interface SearchPanelProps {
 
 export const SearchPanel = ({ users, param, setParam }: SearchPanelProps) => {
   return (
-    // css need import the emotion
     <Form css={{ marginBottom: "2rem" }} layout={"inline"}>
       <Form.Item>
         {/*setParam(Object.assign({}, param, {name:evt.target.value}))*/}
         <Input
-          placeholder={"ProjectName"}
+          placeholder={"项目名"}
           type="text"
           value={param.name}
           onChange={(evt) =>

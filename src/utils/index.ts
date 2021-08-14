@@ -1,9 +1,20 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
+
 export const isVoid = (value: unknown) =>
   value === undefined || value === null || value === "";
 
+// let a: object
+// a = {name: 'jack'}
+// a = () => {
+// }
+// a = new RegExp('')
+//
+// let b: { [key: string]: unknown }
+// b = {name: 'Jack'}
+// b = () => {}
+// 在一个函数里，改变传入的对象本身是不好的
 export const cleanObject = (object: { [key: string]: unknown }) => {
   // Object.assign({}, object)
   const result = { ...object };
@@ -19,7 +30,6 @@ export const cleanObject = (object: { [key: string]: unknown }) => {
 export const useMount = (callback: () => void) => {
   useEffect(() => {
     callback();
-    // TODO 依赖项中加入 callback 会造成无限循环 useCallback and  useMemo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
@@ -79,12 +89,10 @@ export const useArray = <T>(initialArray: T[]) => {
   };
 };
 
-export const useDocumentTitle = (
-  title: string,
-  keepOnUnmount: boolean = true
-) => {
-  // useRef 保存初始页面标题，并在组件整个声明周期内，保持不变
+export const useDocumentTitle = (title: string, keepOnUnmount = true) => {
   const oldTitle = useRef(document.title).current;
+  // 页面加载时: 旧title
+  // 加载后：新title
 
   useEffect(() => {
     document.title = title;
@@ -93,6 +101,7 @@ export const useDocumentTitle = (
   useEffect(() => {
     return () => {
       if (!keepOnUnmount) {
+        // 如果不指定依赖，读到的就是旧title
         document.title = oldTitle;
       }
     };
@@ -102,7 +111,25 @@ export const useDocumentTitle = (
 export const resetRoute = () => (window.location.href = window.location.origin);
 
 /**
- * 返回组件的加载状态，如果未加载或者已经卸载，返回false 反之 true
+ * 传入一个对象，和键集合，返回对应的对象中的键值对
+ * @param obj
+ * @param keys
+ */
+export const subset = <
+  O extends { [key in string]: unknown },
+  K extends keyof O
+>(
+  obj: O,
+  keys: K[]
+) => {
+  const filteredEntries = Object.entries(obj).filter(([key]) =>
+    keys.includes(key as K)
+  );
+  return Object.fromEntries(filteredEntries) as Pick<O, K>;
+};
+
+/**
+ * 返回组件的挂载状态，如果还没挂载或者已经卸载，返回false；反之，返回true
  */
 export const useMountedRef = () => {
   const mountedRef = useRef(false);

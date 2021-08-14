@@ -1,31 +1,32 @@
 import { URLSearchParamsInit, useSearchParams } from "react-router-dom";
-import { useMemo } from "react";
-import { cleanObject } from "utils";
-/**
- *
- * return 页面中指定键的参数值
- */
+import { useMemo, useState } from "react";
+import { cleanObject, subset } from "utils/index";
 
+/**
+ * 返回页面url中，指定键的参数值
+ */
 export const useUrlQueryParam = <K extends string>(keys: K[]) => {
   const [searchParams] = useSearchParams();
+  const setSearchParams = useSetUrlSearchParam();
   const [stateKeys] = useState(keys);
   return [
     useMemo(
       () =>
-        keys.reduce((prev: {}, key: K) => {
-          return { ...prev, [key]: searchParams.get(key) || "" };
-        }, {} as { [key in K]: string }),
-      // 基本类型，组件状态，可以放入依赖项中；非组件状态的‘对象’！，不可以放入依赖
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [searchParams]
+        subset(Object.fromEntries(searchParams), stateKeys) as {
+          [key in K]: string;
+        },
+      [searchParams, stateKeys]
     ),
-    (params: Partial<{ [key in K]: unknown }>) => {},
+    (params: Partial<{ [key in K]: unknown }>) => {
+      return setSearchParams(params);
+      // iterator
+      // iterator: https://codesandbox.io/s/upbeat-wood-bum3j?file=/src/index.js
+    },
   ] as const;
 };
 
 export const useSetUrlSearchParam = () => {
   const [searchParams, setSearchParam] = useSearchParams();
-
   return (params: { [key in string]: unknown }) => {
     const o = cleanObject({
       ...Object.fromEntries(searchParams),

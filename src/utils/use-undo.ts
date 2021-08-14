@@ -25,7 +25,6 @@ const undoReducer = <T>(state: State<T>, action: Action<T>) => {
       if (past.length === 0) return state;
 
       const previous = past[past.length - 1];
-      // slice -- return a copy of a section of an array
       const newPast = past.slice(0, past.length - 1);
 
       return {
@@ -49,7 +48,9 @@ const undoReducer = <T>(state: State<T>, action: Action<T>) => {
     }
 
     case SET: {
-      if (newPresent === present) return state;
+      if (newPresent === present) {
+        return state;
+      }
       return {
         past: [...past, present],
         present: newPresent,
@@ -69,10 +70,6 @@ const undoReducer = <T>(state: State<T>, action: Action<T>) => {
 };
 
 export const useUndo = <T>(initialPresent: T) => {
-  // const [past, setPast] = useState<T[]>([]);
-  // const [present, setPresent] = useState(initialPresent);
-  // const [future, setFuture] = useState<T[]>([]);
-
   const [state, dispatch] = useReducer(undoReducer, {
     past: [],
     present: initialPresent,
@@ -87,12 +84,12 @@ export const useUndo = <T>(initialPresent: T) => {
   const redo = useCallback(() => dispatch({ type: REDO }), []);
 
   const set = useCallback(
-    (newPresent: T) => dispatch({ newPresent, type: SET }),
+    (newPresent: T) => dispatch({ type: SET, newPresent }),
     []
   );
 
   const reset = useCallback(
-    (newPresent: T) => dispatch({ newPresent, type: RESET }),
+    (newPresent: T) => dispatch({ type: RESET, newPresent }),
     []
   );
 

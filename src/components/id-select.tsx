@@ -18,6 +18,7 @@ interface IdSelectProps
  * when isNaN(Number(value)) true ，代表选择默认类型
  * 当选择默认类型，onChange会回调undefined
  * @param props
+ * @constructor
  */
 export const IdSelect = (props: IdSelectProps) => {
   const { value, onChange, defaultOptionName, options, ...restProps } = props;

@@ -1,18 +1,20 @@
 import React, { useEffect } from "react";
-import { Drawer, Button, Spin, Input } from "antd";
-import { useProjectModal, useProjectsQueryKey } from "./util";
-import Form, { useForm } from "antd/lib/form/Form";
+import { Button, Drawer, Form, Input, Spin } from "antd";
+import {
+  useProjectModal,
+  useProjectsQueryKey,
+} from "screens/project-list/util";
 import { UserSelect } from "components/user-select";
 import { useAddProject, useEditProject } from "utils/project";
+import { useForm } from "antd/es/form/Form";
 import { ErrorBox } from "components/lib";
 import styled from "@emotion/styled";
 
 export const ProjectModal = () => {
   const { projectModalOpen, close, editingProject, isLoading } =
     useProjectModal();
-  const title = editingProject ? "编辑项目" : "创建项目";
-
   const useMutateProject = editingProject ? useEditProject : useAddProject;
+
   const {
     mutateAsync,
     error,
@@ -26,15 +28,18 @@ export const ProjectModal = () => {
     });
   };
 
+  const title = editingProject ? "编辑项目" : "创建项目";
+
   useEffect(() => {
     form.setFieldsValue(editingProject);
   }, [editingProject, form]);
+
   return (
     <Drawer
       forceRender={true}
+      onClose={close}
       visible={projectModalOpen}
       width={"100%"}
-      onClose={close}
     >
       <Container>
         {isLoading ? (
@@ -50,36 +55,37 @@ export const ProjectModal = () => {
               onFinish={onFinish}
             >
               <Form.Item
-                lable={"名称"}
+                label={"名称"}
                 name={"name"}
-                rules={[{ required: true, message: "请输入项目名称" }]}
+                rules={[{ required: true, message: "请输入项目名" }]}
               >
                 <Input placeholder={"请输入项目名称"} />
               </Form.Item>
+
               <Form.Item
-                lable={"部门"}
+                label={"部门"}
                 name={"organization"}
-                rules={[{ required: true, message: "请输入部门名称" }]}
+                rules={[{ required: true, message: "请输入部门名" }]}
               >
-                <Input placeholder={"请输入部门名称"} />
+                <Input placeholder={"请输入部门名"} />
               </Form.Item>
-              <Form.Item lable={"负责人"} name={"personId"}>
+
+              <Form.Item label={"负责人"} name={"personId"}>
                 <UserSelect defaultOptionName={"负责人"} />
               </Form.Item>
-              <Form.Item style={{ textAlign: "center" }}>
+
+              <Form.Item style={{ textAlign: "right" }}>
                 <Button
                   loading={mutateLoading}
                   type={"primary"}
                   htmlType={"submit"}
                 >
-                  Submit
+                  提交
                 </Button>
               </Form.Item>
             </Form>
           </>
         )}
-        <h1>Porject Modal</h1>
-        <Button onClick={close}></Button>
       </Container>
     </Drawer>
   );
