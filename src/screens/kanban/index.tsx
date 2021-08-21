@@ -5,6 +5,7 @@ import React from "react";
 import { useDocumentTitle } from "utils";
 import { useKanbans } from "utils/kanban";
 import { useTasks } from "utils/task";
+import { CreateKanban } from "./create-kanban";
 import { KanbanColumn } from "./kanban-column";
 import { SearchPanel } from "./search-panel";
 import {
@@ -34,6 +35,7 @@ export const KanbanScreen = () => {
           {kanbans?.map((kanban) => (
             <KanbanColumn key={kanban.id} kanban={kanban} />
           ))}
+          <CreateKanban />
         </ColumnsContainer>
       )}
     </ScreenContainer>
