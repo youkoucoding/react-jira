@@ -35,20 +35,26 @@ export const KanbanScreen = () => {
         {isLoading ? (
           <Spin size={"large"} />
         ) : (
-          <Drop type={"COLUMN"} direction={"horizontal"} droppableId={"kanban"}>
-            <ColumnsContainer>
-              {kanbans?.map((kanban, index) => (
-                <Drag
-                  key={kanban.id}
-                  draggableId={"kanban" + kanban.id}
-                  index={index}
-                >
-                  <KanbanColumn key={kanban.id} kanban={kanban} />
-                </Drag>
-              ))}
-              <CreateKanban />
-            </ColumnsContainer>
-          </Drop>
+          <ColumnsContainer>
+            <Drop
+              type={"COLUMN"}
+              direction={"horizontal"}
+              droppableId={"kanban"}
+            >
+              <DropChild style={{ display: "flex" }}>
+                {kanbans?.map((kanban, index) => (
+                  <Drag
+                    key={kanban.id}
+                    draggableId={"kanban" + kanban.id}
+                    index={index}
+                  >
+                    <KanbanColumn key={kanban.id} kanban={kanban} />
+                  </Drag>
+                ))}
+              </DropChild>
+            </Drop>
+            <CreateKanban />
+          </ColumnsContainer>
         )}
         <TaskModal />
       </ScreenContainer>
@@ -56,7 +62,7 @@ export const KanbanScreen = () => {
   );
 };
 
-const ColumnsContainer = styled(DropChild)`
+const ColumnsContainer = styled("div")`
   display: flex;
   overflow-x: scroll;
   flex: 1;

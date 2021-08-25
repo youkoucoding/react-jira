@@ -16,6 +16,7 @@ import { CreateTask } from "./create-task";
 import { Task } from "types/task";
 import { Mark } from "components/mark";
 import { useDeleteKanban } from "utils/kanban";
+import { Drop, DropChild, Drag } from "components/drag-and-drop";
 
 const TaskTypeIcon = ({ id }: { id: number }) => {
   const { data: taskTypes } = useTaskTypes();
@@ -58,9 +59,26 @@ export const KanbanColumn = React.forwardRef<
         <More kanban={kanban} key={kanban.id} />
       </Row>
       <TasksContainer>
-        {tasks?.map((task) => (
-          <TaskCard task={task} key={task.id} />
-        ))}
+        <Drop
+          type={"Row"}
+          direction={"vertical"}
+          droppableId={"task" + kanban.id}
+        >
+          <DropChild>
+            {tasks?.map((task, taskIndex) => (
+              <Drag
+                key={task.id}
+                index={taskIndex}
+                draggableId={"task" + task.id}
+              >
+                <div>
+                  {/* 使用div 包裹，簡單避免了 TaskCard組件的ref转发 */}
+                  <TaskCard task={task} key={task.id} />
+                </div>
+              </Drag>
+            ))}
+          </DropChild>
+        </Drop>
         <CreateTask kanbanId={kanban.id} />
       </TasksContainer>
     </Container>
@@ -113,3 +131,5 @@ const TasksContainer = styled.div`
     display: none;
   }
 `;
+
+//  知识点： ref 转发
