@@ -11,6 +11,7 @@ import { ProjectScreen } from "screens/project";
 import { resetRoute } from "utils";
 import { ProjectModal } from "screens/project-list/project-modal";
 import { ProjectPopover } from "components/project-popover";
+import { UserPopover } from "components/user-popover";
 
 /**
  * grid 和 flex 各自的应用场景
@@ -55,7 +56,7 @@ const PageHeader = () => {
           <SoftwareLogo width={"18rem"} color={"rgb(38, 132, 255)"} />
         </ButtonNoPadding>
         <ProjectPopover />
-        <span>用户</span>
+        <UserPopover />
       </HeaderLeft>
       <HeaderRight>
         <User />
@@ -85,14 +86,14 @@ const User = () => {
   );
 };
 
-// temporal dead zone
+// temporal dead zone(暂时性死区)
 const Container = styled.div`
   display: grid;
   grid-template-rows: 6rem 1fr;
   height: 100vh;
 `;
 
-// grid-area 用来给grid子元素
+// grid-area 用来给grid子元素起名字
 const Header = styled(Row)`
   padding: 3.2rem;
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
