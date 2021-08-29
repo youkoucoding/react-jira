@@ -27,7 +27,7 @@ import { UserPopover } from "components/user-popover";
 
 // prop drilling
 
-export const AuthenticatedApp = () => {
+export default () => {
   return (
     <Container>
       <Router>
