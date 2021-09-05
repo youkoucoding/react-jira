@@ -1,9 +1,10 @@
-import { Modal, Form, Input, Button } from "antd";
 import React, { useEffect } from "react";
+import { useTasksModal, useTasksQueryKey } from "screens/kanban/util";
 import { useDeleteTask, useEditTask } from "utils/task";
-import { useTasksModal, useTasksQueryKey } from "./util";
+import { Button, Form, Input, Modal } from "antd";
 import { UserSelect } from "components/user-select";
 import { TaskTypeSelect } from "components/task-type-select";
+import { EpicSelect } from "../../components/epic-select";
 
 const layout = {
   labelCol: { span: 8 },
@@ -16,7 +17,6 @@ export const TaskModal = () => {
   const { mutateAsync: editTask, isLoading: editLoading } = useEditTask(
     useTasksQueryKey()
   );
-
   const { mutate: deleteTask } = useDeleteTask(useTasksQueryKey());
 
   const onCancel = () => {
@@ -32,8 +32,8 @@ export const TaskModal = () => {
   const startDelete = () => {
     close();
     Modal.confirm({
-      okText: "CONFIRM",
-      cancelText: "CONCEL",
+      okText: "确定",
+      cancelText: "取消",
       title: "确定删除任务吗",
       onOk() {
         return deleteTask({ id: Number(editingTaskId) });
@@ -48,27 +48,28 @@ export const TaskModal = () => {
   return (
     <Modal
       forceRender={true}
-      okText={"confirm"}
-      cancelText={"cancel"}
-      confirmLoading={editLoading}
       onCancel={onCancel}
       onOk={onOk}
-      title={"edit task"}
+      okText={"确认"}
+      cancelText={"取消"}
+      confirmLoading={editLoading}
+      title={"编辑任务"}
       visible={!!editingTaskId}
     >
-      <Form initialValues={editingTask} form={form} {...layout}>
+      <Form {...layout} initialValues={editingTask} form={form}>
         <Form.Item
           label={"任务名"}
           name={"name"}
-          rules={[{ required: true, message: "请输入任务名称" }]}
+          rules={[{ required: true, message: "请输入任务名" }]}
         >
           <Input />
         </Form.Item>
-
+        <Form.Item label={"任务组"} name={"epicId"}>
+          <EpicSelect defaultOptionName={"任务组"} />
+        </Form.Item>
         <Form.Item label={"经办人"} name={"processorId"}>
           <UserSelect defaultOptionName={"经办人"} />
         </Form.Item>
-
         <Form.Item label={"类型"} name={"typeId"}>
           <TaskTypeSelect />
         </Form.Item>
@@ -76,10 +77,10 @@ export const TaskModal = () => {
       <div style={{ textAlign: "right" }}>
         <Button
           onClick={startDelete}
+          style={{ fontSize: "14px" }}
           size={"small"}
-          style={{ fontSize: "12px" }}
         >
-          Delete
+          删除
         </Button>
       </div>
     </Modal>
